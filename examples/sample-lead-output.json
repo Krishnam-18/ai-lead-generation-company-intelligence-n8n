@@ -1,0 +1,32 @@
+{
+  "query": "Marketing agencies in Bengaluru, India",
+  "company_name": "Example Digital Agency",
+  "source_url": "https://example-agency.com",
+  "domain": "example-agency.com",
+  "candidate_type": "potential_company",
+  "company_description": "Example Digital Agency is a Bengaluru-based marketing agency offering SEO, content marketing, branding, and website services.",
+  "services": [
+    "SEO",
+    "Content Marketing",
+    "Branding",
+    "Website Design"
+  ],
+  "location_evidence": "Bengaluru, Karnataka, India",
+  "public_emails": [
+    "info@example-agency.com"
+  ],
+  "public_phone_numbers": [],
+  "industry_fit_score": 25,
+  "location_fit_score": 20,
+  "service_fit_score": 20,
+  "business_evidence_score": 18,
+  "contactability_score": 8,
+  "minimum_score": 60,
+  "lead_score": 91,
+  "lead_level": "High",
+  "qualification_status": "Qualified",
+  "reasoning": "The company matches the target industry and location and offers services related to digital marketing and business growth.",
+  "recommended_action": "Contact the company with an AI lead generation and workflow automation proposal.",
+  "extraction_method": "http_request_html",
+  "extraction_status": "success"
+}
