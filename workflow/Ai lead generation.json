@@ -1,0 +1,1088 @@
+{
+  "name": "Ai lead generation",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "AI Lead Generation Request",
+        "formDescription": "Find and qualify public marketing agencies in a selected location.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Niche",
+              "defaultValue": "Marketing agencies",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Location",
+              "defaultValue": "Bengaluru",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Maximum companies",
+              "fieldType": "number",
+              "defaultValue": "10",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "buttonLabel": "Start Company Research"
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -800,
+        -432
+      ],
+      "id": "ea22d61d-baf9-44a4-9d9d-83dab8f5e225",
+      "name": "On form submission",
+      "webhookId": "0db32ef0-28b4-495a-a315-4c350ae7b015"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6e724a8d-f11f-4aac-8d2d-4e22bf4bc305",
+              "name": "Niche ",
+              "value": "={{ $json['Niche'].trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "80f04eac-dc78-4d8a-b767-bb723c427040",
+              "name": "Location",
+              "value": "={{ $json.Location.trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "2ae9c8c6-3045-479f-9c2a-42a4f276c38f",
+              "name": "Maximum companies",
+              "value": "={{ $json['Maximum companies'] }}",
+              "type": "number"
+            },
+            {
+              "id": "ee0b5ade-f5b2-4a20-b293-6db9c1eb2863",
+              "name": "ideal customer profile",
+              "value": "Marketing agencies that may need lead generation, AI automation, reporting, or workflow automation services.",
+              "type": "string"
+            },
+            {
+              "id": "018e0aef-807b-414b-a719-07cf18be7d46",
+              "name": "minimum score",
+              "value": 60,
+              "type": "number"
+            },
+            {
+              "id": "edbabe7d-ad87-4f1d-954a-0afaee375bfe",
+              "name": "search query",
+              "value": "={{ $json['Niche'].trim() + \" in \" + $json.Location.trim() + \", India\" }}",
+              "type": "string"
+            },
+            {
+              "id": "bf8a44d8-5e1c-4fc1-aded-e98be10fd055",
+              "name": "research timestamp",
+              "value": "={{ $now.setZone('Asia/Kolkata').toFormat('yyyy-MM-dd hh:mm:ss a') }}",
+              "type": "string"
+            },
+            {
+              "id": "18487613-75fe-4e00-b9ca-c38d3fba6fd8",
+              "name": "request status",
+              "value": "submitted",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -592,
+        -432
+      ],
+      "id": "d1d1169b-7d26-45ec-8dc0-89ffe7ab79fd",
+      "name": "Normalize Research Request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "259f4ef2-9410-417b-87d5-d2062d7c352d",
+              "leftValue": "={{\n  Boolean($json['Niche ']) &&\n  Boolean($json['Location']) &&\n  !isNaN($json['Maximum companies']) &&\n  Number($json['Maximum companies']) >= 1 &&\n  Number($json['Maximum companies']) <= 50\n}}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -400,
+        -384
+      ],
+      "id": "26227b11-7e51-49ae-ab80-8f2a6dab671c",
+      "name": "Validate Research Request"
+    },
+    {
+      "parameters": {
+        "query": "={{ $json[\"search query\"] }}",
+        "options": {
+          "topic": "general",
+          "search_depth": "basic",
+          "max_results": 15
+        }
+      },
+      "type": "@tavily/n8n-nodes-tavily.tavily",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        -416
+      ],
+      "id": "",
+      "name": "Search",
+      "credentials": {
+        "tavilyApi": {
+          "id": "",
+          "name": "Tavily account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "fa2c18a0-ff23-47d0-8796-22b76dc9d217",
+              "leftValue": "={{\n  Array.isArray($json.results) &&\n  $json.results.length > 0\n}}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        16,
+        -384
+      ],
+      "id": "ad1da74c-450d-49f8-a325-576cb807c7b2",
+      "name": "Check Search Results"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "=results",
+        "include": "allOtherFields",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        240,
+        -400
+      ],
+      "id": "b1ad8e33-2456-42f8-be42-051cea793fd6",
+      "name": "Split Company Results"
+    },
+    {
+      "parameters": {
+        "jsCode": "const directoryHosts = [\n  'designrush.com',\n  'clutch.co',\n  'sortlist.com',\n  'goodfirms.com',\n  'goodfirms.co',\n  'justdial.com',\n  'sulekha.com',\n  'indiamart.com',\n  'facebook.com',\n  'instagram.com',\n  'linkedin.com',\n  'google.com',\n  'yelp.com'\n];\n\nfunction cleanUrl(value) {\n  const rawUrl = String(value || '').trim();\n\n  if (!rawUrl) {\n    return {\n      source_url: null,\n      domain: null,\n      url_error: 'URL is empty'\n    };\n  }\n\n  const urlWithProtocol = /^https?:\\/\\//i.test(rawUrl)\n    ? rawUrl\n    : `https://${rawUrl}`;\n\n  const match = urlWithProtocol.match(\n    /^https?:\\/\\/([^/?#]+)(\\/[^?#]*)?/i\n  );\n\n  if (!match) {\n    return {\n      source_url: null,\n      domain: null,\n      url_error: 'URL format could not be recognized'\n    };\n  }\n\n  const domain = match[1]\n    .toLowerCase()\n    .replace(/^www\\./, '');\n\n  const path = (match[2] || '/')\n    .replace(/\\/+$/, '') || '/';\n\n  return {\n    source_url: `https://${domain}${path}`,\n    domain,\n    url_error: null\n  };\n}\n\nreturn items.map((item) => {\n  const result = item.json.results || item.json;\n\n  const originalUrl = result.url;\n  const cleaned = cleanUrl(originalUrl);\n\n  const isDirectory =\n    cleaned.domain &&\n    directoryHosts.some((host) =>\n      cleaned.domain === host ||\n      cleaned.domain.endsWith(`.${host}`)\n    );\n\n  return {\n    json: {\n      query: item.json.query || null,\n      title: result.title || null,\n      content: result.content || null,\n      score: result.score || null,\n      url: originalUrl || null,\n      source_url: cleaned.source_url,\n      domain: cleaned.domain,\n      url_error: cleaned.url_error,\n      candidate_type: isDirectory\n        ? 'directory_or_platform'\n        : 'potential_company',\n      data_quality_status:\n        cleaned.source_url && cleaned.domain\n          ? 'valid_url'\n          : 'invalid_url'\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        -400
+      ],
+      "id": "270a06bc-deab-43c9-a54c-bcd52d07b59b",
+      "name": "Normalize Company URLs"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "bb92618f-5329-4c02-9a6c-f916e95801d2",
+              "leftValue": "={{\n  $json.candidate_type === 'potential_company' &&\n  $json.data_quality_status === 'valid_url' &&\n  Boolean($json.domain)\n}}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        608,
+        -400
+      ],
+      "id": "131d2de3-442f-45fc-ad51-ab2dbc72189e",
+      "name": "Keep Valid Company Websites"
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "domain",
+        "options": {
+          "removeOtherFields": false
+        }
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        -736,
+        -192
+      ],
+      "id": "f45344ae-4e0f-4273-ae1e-8b1e9280c9c9",
+      "name": "Remove Duplicates"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.source_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {
+              "maxRedirects": 5
+            }
+          },
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "text",
+              "outputPropertyName": "website_html"
+            }
+          },
+          "timeout": 30000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -528,
+        -192
+      ],
+      "id": "31f09e29-a242-40a5-a7b5-14fd97f4e0d0",
+      "name": "Fetch Company Website",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "executeOnce": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "dataPropertyName": "website_html",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "website_text",
+              "cssSelector": "body",
+              "skipSelectors": "script, style, noscript, svg, iframe, nav, img, picture, form"
+            }
+          ]
+        },
+        "options": {
+          "trimValues": true,
+          "cleanUpText": true
+        }
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        -320,
+        -192
+      ],
+      "id": "f6f31cf9-84f5-4576-b379-5a648f0ae6c7",
+      "name": "Extract Website Text"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const rawText = String($json.website_text || '');\n\nconst cleanedText = rawText\n  // Convert [tel:+919...] to +919...\n  .replace(/\\[(?:tel:)([^\\]]+)\\]/gi, ' $1 ')\n\n  // Convert [mailto:email@example.com] to email@example.com\n  .replace(/\\[(?:mailto:)([^\\]]+)\\]/gi, ' $1 ')\n\n  // Remove bracketed full URLs\n  .replace(/\\[https?:\\/\\/[^\\]]+\\]/gi, ' ')\n\n  // Remove normal full URLs, including social-media URLs\n  .replace(/https?:\\/\\/[^\\s\\]]+/gi, ' ')\n\n  // Remove image and asset paths\n  .replace(\n    /\\[?\\/?(?:images|icons|assets|static)\\/[^\\]\\s]+/gi,\n    ' '\n  )\n\n  // Remove relative webpage links such as [seo-company.html]\n  .replace(\n    /\\[\\/?[^\\]]+\\.(?:html?|php|aspx?)(?:\\?[^\\]]*)?\\]/gi,\n    ' '\n  )\n\n  // Remove menu artifacts\n  .replace(/\\/Menu/gi, ' ')\n\n  // Remove remaining square brackets but keep their text\n  .replace(/\\[([^\\]]+)\\]/g, ' $1 ')\n\n  // Replace stray slash characters with spaces\n  .replace(/\\//g, ' ')\n\n  // Normalize repeated spaces\n  .replace(/\\s+/g, ' ')\n\n  .trim();\n\nconst maximumCharacters = 12000;\n\nconst shortenedText = cleanedText.slice(0, maximumCharacters);\n\nconst {\n  website_html,\n  website_text,\n  ...otherFields\n} = $json;\n\nreturn {\n  json: {\n    ...otherFields,\n    clean_website_text: shortenedText,\n    text_character_count: cleanedText.length,\n    text_quality: cleanedText.length >= 300\n      ? 'usable'\n      : 'short'\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -112,
+        -192
+      ],
+      "id": "159ad79d-5c8b-4f01-85d7-f03e84f41f5c",
+      "name": "Clean Website Text"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ee1567f2-8fbc-4632-8e7b-84cdae679a7e",
+              "leftValue": "={{\n  $json.text_quality === 'usable' &&\n  $json.text_character_count >= 300\n}}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        96,
+        -192
+      ],
+      "id": "01984b8c-b692-4e72-b1f1-236f0ba53fff",
+      "name": "Check Website Text Quality"
+    },
+    {
+      "parameters": {
+        "resource": "extract",
+        "url": "={{ $('Normalize Company URLs').item.json.source_url }}",
+        "prompt": "Extract reliable public company information from this website.\n\nReturn:\n- A concise company description\n- Main services\n- Bengaluru or India location evidence\n- Public business email addresses\n- Public business phone numbers\n- A clean readable summary for later lead qualification\n\nUse only information found on the page.\nDo not invent missing information.\nIf a field is unavailable, return an empty value.",
+        "useSchema": true,
+        "schema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"company_description\": {\n      \"type\": \"string\"\n    },\n    \"services\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"location_evidence\": {\n      \"type\": \"string\"\n    },\n    \"public_emails\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"public_phone_numbers\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      }\n    },\n    \"clean_website_text\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"company_description\",\n    \"services\",\n    \"clean_website_text\"\n  ]\n}",
+        "fetchConfig": {
+          "mode": "auto",
+          "stealth": false
+        }
+      },
+      "type": "n8n-nodes-scrapegraphai.scrapegraphAi",
+      "typeVersion": 1,
+      "position": [
+        336,
+        -144
+      ],
+      "id": "e42f3cfa-2bbc-4bea-8d53-c5bf7d707a6b",
+      "name": "ScrapeGraphAI Fallback",
+      "credentials": {
+        "scrapegraphAIApi": {
+          "id": "",
+          "name": ""
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Get current ScrapeGraphAI item payload\nconst itemJson = $input.item.json || {};\nconst extracted = itemJson.json || itemJson;\nconst itemIndex = $input.item.index;\n\n// Safely pull all items from upstream nodes\nlet originalItems = [];\ntry {\n  originalItems = $('Keep Valid Company Websites').all();\n} catch (e) {\n  originalItems = [];\n}\n\nlet normalizedUrlItems = [];\ntry {\n  normalizedUrlItems = $('Normalize Company URLs').all();\n} catch (e) {\n  normalizedUrlItems = [];\n}\n\n// 1. Try finding target URL from ScrapeGraphAI payload or error metadata\nconst targetUrl = extracted.url || \n                  itemJson.url || \n                  $input.item.json?.error?.config?.url || \n                  $input.item.json?.metadata?.url || '';\n\n// 2. Look up original item: match by URL first, fallback to item index array mapping\nlet original = {};\nif (targetUrl) {\n  original = originalItems.find(i => \n    (i.json.source_url && targetUrl.includes(i.json.source_url)) ||\n    (i.json.domain && targetUrl.includes(i.json.domain))\n  )?.json || {};\n}\n\n// If URL matching didn't yield a match, retrieve by index from originalItems\nif (!original.source_url && originalItems[itemIndex]) {\n  original = originalItems[itemIndex].json || {};\n}\n\nlet normalizedUrlData = {};\nif (targetUrl) {\n  normalizedUrlData = normalizedUrlItems.find(i => \n    (i.json.source_url && targetUrl.includes(i.json.source_url)) ||\n    (i.json.domain && targetUrl.includes(i.json.domain))\n  )?.json || {};\n}\nif (!normalizedUrlData.source_url && normalizedUrlItems[itemIndex]) {\n  normalizedUrlData = normalizedUrlItems[itemIndex].json || {};\n}\n\n// Extract arrays safely\nconst services = Array.isArray(extracted.services) ? extracted.services : [];\nconst publicEmails = Array.isArray(extracted.public_emails) ? extracted.public_emails : [];\nconst publicPhoneNumbers = Array.isArray(extracted.public_phone_numbers) ? extracted.public_phone_numbers : [];\n\n// Clean website text\nconst cleanWebsiteText = extracted.clean_website_text || original.clean_website_text || '';\n\nreturn {\n  json: {\n    query: original.query || null,\n    title: original.title || null,\n    source_url: original.source_url || normalizedUrlData.source_url || targetUrl || null,\n    domain: original.domain || normalizedUrlData.domain || null,\n    candidate_type: original.candidate_type || 'potential_company',\n    search_score: original.score || null,\n    company_description: extracted.company_description || null,\n    services: services,\n    location_evidence: extracted.location_evidence || null,\n    public_emails: publicEmails,\n    public_phone_numbers: publicPhoneNumbers,\n    clean_website_text: cleanWebsiteText,\n    extraction_method: 'scrapegraphai',\n    extraction_status: (extracted.company_description && services.length > 0) ? 'success' : 'partial',\n    text_character_count: cleanWebsiteText.length,\n    text_quality: cleanWebsiteText.length >= 300 ? 'usable' : 'short',\n    scrapegraph_usage: itemJson.usage || extracted.usage || null\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        -128
+      ],
+      "id": "b4d7cd55-07c1-4624-9213-e1a9f6ced6fc",
+      "name": "Normalize ScrapeGraphAI Result"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        768,
+        -208
+      ],
+      "id": "730202f4-a417-4b4f-9dc4-53c3436e6fce",
+      "name": "Merge Company Records"
+    },
+    {
+      "parameters": {
+        "model": "",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        304
+      ],
+      "id": "",
+      "name": "",
+      "credentials": {
+        "openRouterApi": {
+          "id": "",
+          "name": ""
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a professional B2B lead qualification analyst.\n\nAnalyze the company information below for a business that sells:\nAI automation, lead generation automation, company research automation, and workflow automation services.\n\nIdeal customer profile:\nMarketing agencies in Bengaluru that may need better lead generation, AI tools, CRM automation, research automation, or workflow automation.\n\nEvaluate the company using these criteria:\n\n1. Industry fit: Is the company a marketing, advertising, branding, content, SEO, or digital agency?\n2. Location fit: Is the company located in Bengaluru or Bangalore?\n3. Service fit: Could the company benefit from lead generation, AI automation, CRM automation, or workflow automation?\n4. Business evidence: Does the website provide useful evidence such as services, clients, team information, contact details, or business activity?\n5. Contactability: Is a public email address or phone number available?\n\nScoring rules:\n\n- Industry fit: 0 to 25 points\n- Location fit: 0 to 20 points\n- Service fit: 0 to 25 points\n- Business evidence: 0 to 20 points\n- Contactability: 0 to 10 points\n\nTotal score must be between 0 and 100.\n\nLead classification:\n\n- 80 to 100: High\n- 60 to 79: Medium\n- 0 to 59: Low\n\nDo not invent facts.\nUse only the information provided.\nIf information is missing, say so clearly.\n\nCompany information:\n\nCompany title:\n{{ $json.title || 'Not available' }}\n\nCompany domain:\n{{ $json.domain || 'Not available' }}\n\nCompany website:\n{{ $json.source_url || 'Not available' }}\n\nCompany description:\n{{ $json.company_description || 'Not available' }}\n\nServices:\n{{ JSON.stringify($json.services || []) }}\n\nLocation evidence:\n{{ $json.location_evidence || 'Not available' }}\n\nPublic emails:\n{{ JSON.stringify($json.public_emails || []) }}\n\nPublic phone numbers:\n{{ JSON.stringify($json.public_phone_numbers || []) }}\n\nWebsite text:\n{{ $json.clean_website_text || 'Not available' }}\n\nDo not include headings outside the structured response.\nCreate a concise company_description of two or three sentences using the website text and company information.\n\nDo not invent facts.\nIf information is insufficient, write:\n\"Insufficient public information available.\"\nReturn the result using the exact structured output format provided.\nReturn only the requested fields.\nDo not use Markdown.",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -704,
+        128
+      ],
+      "id": "d0f05fc6-7fd8-4f03-b4cf-27c59fcf4dbd",
+      "name": "AI Lead Qualification"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"company_name\": \"DigiMark Agency\",\n  \"company_description\": \"DigiMark Agency is a digital marketing agency based in Bengaluru that provides SEO, CRO, AI search optimization, paid media, website design, analytics, and content strategy services.\",\n  \"source_url\": \"https://www.digimarkagency.com\",\n  \"domain\": \"digimarkagency.com\",\n  \"industry_fit_score\": 25,\n  \"location_fit_score\": 20,\n  \"service_fit_score\": 20,\n  \"business_evidence_score\": 20,\n  \"contactability_score\": 10,\n  \"lead_score\": 95,\n  \"lead_level\": \"High\",\n  \"qualification_status\": \"Qualified\",\n  \"reasoning\": \"The company is a Bengaluru marketing agency with relevant digital services.\",\n  \"recommended_action\": \"Contact the company with an AI automation proposal.\",\n  \"public_emails\": [\n    \"info@digimarkagency.com\"\n  ],\n  \"public_phone_numbers\": [\n    \"+919187375459\"\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -480,
+        304
+      ],
+      "id": "534a61b3-1464-44eb-9674-e86597961098",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const aiResult = $json.output || $json;\n\nconst mergedCompany =\n  $('Merge Company Records').item.json;\n\nconst normalizedCompany =\n  $('Normalize Company URLs').item.json;\n\nfunction valueOrNull(firstValue, secondValue) {\n  return firstValue ?? secondValue ?? null;\n}\n\n// Read and safely limit the AI score between 0 and 100\nconst rawLeadScore = Number(aiResult.lead_score);\n\nlet leadScore = Number.isFinite(rawLeadScore)\n  ? rawLeadScore\n  : 0;\n\n// Convert decimal score such as 0.95 into 95\nif (leadScore >= 0 && leadScore <= 1) {\n  leadScore = leadScore * 100;\n}\n\n// Keep the final lead score as a whole number from 0 to 100\nleadScore = Math.round(\n  Math.max(0, Math.min(100, leadScore))\n);\n\n// Read the minimum score from the original request\nconst configuredMinimumScore = Number(\n  mergedCompany.minimum_score\n);\n\nconst minimumScore = Number.isFinite(configuredMinimumScore)\n  ? Math.max(0, Math.min(100, configuredMinimumScore))\n  : 60;\n\n// Assign the lead level using fixed business rules\nconst leadLevel =\n  leadScore >= 80\n    ? 'High'\n    : leadScore >= 60\n      ? 'Medium'\n      : 'Low';\n\n// Decide qualification using the minimum score\nconst qualificationStatus =\n  leadScore >= minimumScore\n    ? 'Qualified'\n    : 'Not Qualified';\n\nreturn {\n  json: {\n    // Original search information\n    query: valueOrNull(\n      mergedCompany.query,\n      normalizedCompany.query\n    ),\n\n    title: valueOrNull(\n      mergedCompany.title,\n      normalizedCompany.title\n    ),\n\n    url: valueOrNull(\n      mergedCompany.url,\n      normalizedCompany.url\n    ),\n\n    source_url: valueOrNull(\n      mergedCompany.source_url,\n      normalizedCompany.source_url\n    ),\n\n    domain: valueOrNull(\n      mergedCompany.domain,\n      normalizedCompany.domain\n    ),\n\n    candidate_type: valueOrNull(\n      mergedCompany.candidate_type,\n      normalizedCompany.candidate_type\n    ),\n\n    search_score: valueOrNull(\n      mergedCompany.search_score,\n      normalizedCompany.score\n    ),\n\n    // Original research request settings\n    niche: mergedCompany.niche || null,\n\n    location: mergedCompany.location || null,\n\n    minimum_score: minimumScore,\n\n    // Company information\n    company_name:\n      aiResult.company_name ||\n      mergedCompany.title ||\n      normalizedCompany.title ||\n      null,\n\n    company_description:\n      aiResult.company_description ||\n      mergedCompany.company_description ||\n      null,\n\n    services:\n      aiResult.services ||\n      mergedCompany.services ||\n      [],\n\n    location_evidence:\n      aiResult.location_evidence ||\n      mergedCompany.location_evidence ||\n      null,\n\n    clean_website_text:\n      aiResult.clean_website_text ||\n      mergedCompany.clean_website_text ||\n      null,\n\n    // Contact information\n    public_emails:\n      aiResult.public_emails ||\n      mergedCompany.public_emails ||\n      [],\n\n    public_phone_numbers:\n      aiResult.public_phone_numbers ||\n      mergedCompany.public_phone_numbers ||\n      [],\n\n    // AI scoring\n    industry_fit_score:\n      Number(aiResult.industry_fit_score) || 0,\n\n    location_fit_score:\n      Number(aiResult.location_fit_score) || 0,\n\n    service_fit_score:\n      Number(aiResult.service_fit_score) || 0,\n\n    business_evidence_score:\n      Number(aiResult.business_evidence_score) || 0,\n\n    contactability_score:\n      Number(aiResult.contactability_score) || 0,\n\n    // Final controlled score\n    lead_score: leadScore,\n\n    lead_level: leadLevel,\n\n    qualification_status: qualificationStatus,\n\n    // AI explanation\n    reasoning:\n      aiResult.reasoning || '',\n\n    recommended_action:\n      aiResult.recommended_action || '',\n\n    // Tracking information\n    extraction_method:\n  mergedCompany.extraction_method || 'http_request_html',\n\n    extraction_status:\n      mergedCompany.extraction_status || null,\n\n    processed_at: new Date().toISOString()\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -368,
+        128
+      ],
+      "id": "434675df-ecf7-4072-9d25-f5427866cd5b",
+      "name": "Combine Company Data and AI Result"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "aac5ee1d-93b1-402d-aed1-380effbb6d98",
+              "leftValue": "={{\n  Boolean($json.company_name) &&\n  Boolean($json.source_url) &&\n  Boolean($json.domain) &&\n  Number.isFinite(Number($json.lead_score)) &&\n  Number($json.lead_score) >= 0 &&\n  Number($json.lead_score) <= 100 &&\n  (\n    (\n      Number($json.lead_score) >= 80 &&\n      $json.lead_level === 'High'\n    ) ||\n    (\n      Number($json.lead_score) >= 60 &&\n      Number($json.lead_score) < 80 &&\n      $json.lead_level === 'Medium'\n    ) ||\n    (\n      Number($json.lead_score) < 60 &&\n      $json.lead_level === 'Low'\n    )\n  ) &&\n  (\n    (\n      Number($json.lead_score) >= Number($json.minimum_score || 60) &&\n      $json.qualification_status === 'Qualified'\n    ) ||\n    (\n      Number($json.lead_score) < Number($json.minimum_score || 60) &&\n      $json.qualification_status === 'Not Qualified'\n    )\n  )\n}}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -144,
+        128
+      ],
+      "id": "a689476d-c9bd-4f99-8de4-f64f825e4719",
+      "name": "Validate Final Lead Record"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1wXB7jBg9mWYhPM7O-useR32aZx_7wSonlvk7ble5qg0",
+          "mode": "list",
+          "cachedResultName": "AI Lead Intelligence CRM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wXB7jBg9mWYhPM7O-useR32aZx_7wSonlvk7ble5qg0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wXB7jBg9mWYhPM7O-useR32aZx_7wSonlvk7ble5qg0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $json.query }}",
+            "company_name": "={{ $json.company_name }}",
+            "domain": "={{ $json.domain }}",
+            "source_url": "={{ $json.source_url }}",
+            "candidate_type": "={{ $json.candidate_type }}",
+            "company_description": "={{ $json.company_description }}",
+            "services": "={{ $json.services }}",
+            "location_evidence": "={{ $json.location_evidence }}",
+            "public_emails": "={{ $json.public_emails }}",
+            "public_phone_numbers": "={{ $json.public_phone_numbers }}",
+            "lead_score": "={{ $json.lead_score }}",
+            "lead_level": "={{ $json.lead_level }}",
+            "qualification_status": "={{ $json.qualification_status }}",
+            "reasoning": "={{ $json.reasoning }}",
+            "recommended_action": "={{ $json.recommended_action }}",
+            "extraction_method": "={{ $json.extraction_method }}",
+            "processed_at": "={{ $('Combine Company Data and AI Result').item.json.processed_at }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "processed_at",
+              "displayName": "processed_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_name",
+              "displayName": "company_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source_url",
+              "displayName": "source_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "domain",
+              "displayName": "domain",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "candidate_type",
+              "displayName": "candidate_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_description",
+              "displayName": "company_description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "services",
+              "displayName": "services",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "location_evidence",
+              "displayName": "location_evidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "public_emails",
+              "displayName": "public_emails",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "public_phone_numbers",
+              "displayName": "public_phone_numbers",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lead_score",
+              "displayName": "lead_score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lead_level",
+              "displayName": "lead_level",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "qualification_status",
+              "displayName": "qualification_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reasoning",
+              "displayName": "reasoning",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recommended_action",
+              "displayName": "recommended_action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "extraction_method",
+              "displayName": "extraction_method",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        80,
+        240
+      ],
+      "id": "80ca078c-9105-4aec-bdf5-56741dd14de0",
+      "name": "Save Leads to Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": ""
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const leads = items.map(item => item.json);\n\nconst totalLeads = leads.length;\n\nconst qualifiedLeads = leads.filter(\n  lead => lead.qualification_status === 'Qualified'\n);\n\nconst highLeads = leads.filter(\n  lead => lead.lead_level === 'High'\n);\n\nconst mediumLeads = leads.filter(\n  lead => lead.lead_level === 'Medium'\n);\n\nconst lowLeads = leads.filter(\n  lead => lead.lead_level === 'Low'\n);\n\nconst averageScore = totalLeads > 0\n  ? Math.round(\n      leads.reduce(\n        (total, lead) => total + Number(lead.lead_score || 0),\n        0\n      ) / totalLeads\n    )\n  : 0;\n\nfunction formatContacts(lead) {\n  const emails = Array.isArray(lead.public_emails)\n    ? lead.public_emails.join(', ')\n    : '';\n\n  const phones = Array.isArray(lead.public_phone_numbers)\n    ? lead.public_phone_numbers.join(', ')\n    : '';\n\n  if (!emails && !phones) {\n    return 'No public contact details found';\n  }\n\n  return [\n    emails ? `Email: ${emails}` : '',\n    phones ? `Phone: ${phones}` : ''\n  ]\n    .filter(Boolean)\n    .join(' | ');\n}\n\nfunction formatLead(lead) {\n  return `### ${lead.company_name || 'Unknown company'}\n\n- Lead score: ${lead.lead_score}/100\n- Lead level: ${lead.lead_level}\n- Qualification: ${lead.qualification_status}\n- Domain: ${lead.domain || 'Not available'}\n- Website: ${lead.source_url || 'Not available'}\n- Contact: ${formatContacts(lead)}\n- Reasoning: ${lead.reasoning || 'No reasoning available'}\n- Recommended action: ${lead.recommended_action || 'No action provided'}\n`;\n}\n\nconst highPrioritySection = highLeads.length > 0\n  ? highLeads.map(formatLead).join('\\n')\n  : 'No high-priority leads found.';\n\nconst mediumPrioritySection = mediumLeads.length > 0\n  ? mediumLeads.map(formatLead).join('\\n')\n  : 'No medium-priority leads found.';\n\nconst lowPrioritySection = lowLeads.length > 0\n  ? lowLeads.map(formatLead).join('\\n')\n  : 'No low-priority leads found.';\n\nconst reportMarkdown = `# AI Lead Intelligence Report\n\n## Research Summary\n\n- Research query: ${leads[0]?.query || 'Not available'}\n- Total companies researched: ${totalLeads}\n- Qualified leads: ${qualifiedLeads.length}\n- High-priority leads: ${highLeads.length}\n- Medium-priority leads: ${mediumLeads.length}\n- Low-priority leads: ${lowLeads.length}\n- Average lead score: ${averageScore}/100\n- Report generated: ${new Date().toISOString()}\n\n## High-Priority Leads\n\n${highPrioritySection}\n\n## Medium-Priority Leads\n\n${mediumPrioritySection}\n\n## Low-Priority Leads\n\n${lowPrioritySection}\n\n## Business Recommendation\n\nPrioritize the high-priority leads first. Review medium-priority leads after verifying their business needs and contact information. Low-priority leads should remain in the CRM for future research but should not receive immediate sales attention.\n`;\n\nreturn [\n  {\n    json: {\n      report_type: 'lead_intelligence_report',\n      report_generated_at: new Date().toISOString(),\n      total_leads: totalLeads,\n      qualified_leads: qualifiedLeads.length,\n      high_priority_leads: highLeads.length,\n      medium_priority_leads: mediumLeads.length,\n      low_priority_leads: lowLeads.length,\n      average_score: averageScore,\n      report_markdown: reportMarkdown\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        96,
+        64
+      ],
+      "id": "3c555573-1fb4-4672-8c37-393ba51d95b8",
+      "name": "Generate Lead Intelligence Report"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "report_markdown",
+        "options": {
+          "fileName": "ai-lead-intelligence-report.md"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        288,
+        64
+      ],
+      "id": "57ece796-52dc-402c-9ad4-159e57234afd",
+      "name": "Create Markdown Report File"
+    }
+  ],
+  "pinData": {
+    "On form submission": [
+      {
+        "json": {
+          "Niche": "Marketing agencies",
+          "Location": "Bengaluru",
+          "Maximum companies": 12,
+          "submittedAt": "2026-09-22T07:03:17.503-04:00",
+          "formMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Normalize Research Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Research Request": {
+      "main": [
+        [
+          {
+            "node": "Validate Research Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Research Request": {
+      "main": [
+        [
+          {
+            "node": "Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search": {
+      "main": [
+        [
+          {
+            "node": "Check Search Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Search Results": {
+      "main": [
+        [
+          {
+            "node": "Split Company Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Company Results": {
+      "main": [
+        [
+          {
+            "node": "Normalize Company URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Company URLs": {
+      "main": [
+        [
+          {
+            "node": "Keep Valid Company Websites",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep Valid Company Websites": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Fetch Company Website",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Company Website": {
+      "main": [
+        [
+          {
+            "node": "Extract Website Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ScrapeGraphAI Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Website Text": {
+      "main": [
+        [
+          {
+            "node": "Clean Website Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Website Text": {
+      "main": [
+        [
+          {
+            "node": "Check Website Text Quality",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Website Text Quality": {
+      "main": [
+        [
+          {
+            "node": "Merge Company Records",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ScrapeGraphAI Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ScrapeGraphAI Fallback": {
+      "main": [
+        [
+          {
+            "node": "Normalize ScrapeGraphAI Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize ScrapeGraphAI Result": {
+      "main": [
+        [
+          {
+            "node": "Merge Company Records",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Lead Qualification",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Company Records": {
+      "main": [
+        [
+          {
+            "node": "AI Lead Qualification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Lead Qualification": {
+      "main": [
+        [
+          {
+            "node": "Combine Company Data and AI Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Lead Qualification",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Company Data and AI Result": {
+      "main": [
+        [
+          {
+            "node": "Validate Final Lead Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Final Lead Record": {
+      "main": [
+        [
+          {
+            "node": "Generate Lead Intelligence Report",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Save Leads to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Lead Intelligence Report": {
+      "main": [
+        [
+          {
+            "node": "Create Markdown Report File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Markdown Report File": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "Wp0xD9LdE7VhNn4F",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "76effd5f-8561-45b7-a12c-d89a9651ec1a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0b91276bbd1d5ea21b9e87d7e3e03ca2689719b64e3b8cf77921a21c6a9cc8d5"
+  },
+  "nodeGroups": [],
+  "id": "KskEcSetQepaMF4L",
+  "tags": []
+}

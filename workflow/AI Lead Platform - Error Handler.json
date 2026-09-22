@@ -1,0 +1,193 @@
+{
+  "name": "AI Lead Platform - Error Handler",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        -16
+      ],
+      "id": "2a35fd15-b13c-497a-b371-f76c6ec09f42",
+      "name": "Capture Workflow Error"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const execution = $json.execution || {};\nconst workflow = $json.workflow || {};\nconst error = execution.error || {};\n\nreturn {\n  json: {\n    error_timestamp: new Date().toISOString(),\n\n    workflow_name:\n      workflow.name || 'Unknown workflow',\n\n    execution_id:\n      execution.id || null,\n\n    failed_node:\n      execution.lastNodeExecuted || 'Unknown node',\n\n    error_message:\n      error.message || 'Unknown error',\n\n    error_stack:\n      error.stack || '',\n\n    execution_mode:\n      execution.mode || 'Unknown',\n\n    status: 'Open'\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -96,
+        -16
+      ],
+      "id": "5e85025c-70be-4d43-9696-d5ebbe1f8117",
+      "name": "Format Error Log"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1wXB7jBg9mWYhPM7O-useR32aZx_7wSonlvk7ble5qg0",
+          "mode": "list",
+          "cachedResultName": "AI Lead Intelligence CRM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wXB7jBg9mWYhPM7O-useR32aZx_7wSonlvk7ble5qg0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1863566254,
+          "mode": "list",
+          "cachedResultName": "Error_Logs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1wXB7jBg9mWYhPM7O-useR32aZx_7wSonlvk7ble5qg0/edit#gid=1863566254"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "error_timestamp": "={{ $json.error_timestamp }}",
+            "workflow_name": "={{ $json.workflow_name }}",
+            "execution_id": "={{ $json.execution_id }}",
+            "failed_node": "={{ $json.failed_node }}",
+            "error_message": "={{ $json.error_message }}",
+            "error_stack": "={{ $json.error_stack }}",
+            "execution_mode": "={{ $json.execution_mode }}",
+            "status": "={{ $json.status }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "error_timestamp",
+              "displayName": "error_timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "workflow_name",
+              "displayName": "workflow_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "execution_id",
+              "displayName": "execution_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "failed_node",
+              "displayName": "failed_node",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "error_message",
+              "displayName": "error_message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "error_stack",
+              "displayName": "error_stack",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "execution_mode",
+              "displayName": "execution_mode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        112,
+        -16
+      ],
+      "id": "152151fa-bede-4870-ab71-6c3b878f39ff",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oBCy1FZITUdrZ4Rg",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Capture Workflow Error": {
+      "main": [
+        [
+          {
+            "node": "Format Error Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Error Log": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "4c992f7c-d199-4554-9f89-d1613f0c872a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0b91276bbd1d5ea21b9e87d7e3e03ca2689719b64e3b8cf77921a21c6a9cc8d5"
+  },
+  "nodeGroups": [],
+  "id": "Wp0xD9LdE7VhNn4F",
+  "tags": []
+}
