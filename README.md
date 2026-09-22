@@ -27,11 +27,11 @@ This workflow automates that research process and produces structured, ranked le
 
 ## Architecture
 
-![Architecture Diagram](documentation/architecture-diagram.png)
+![Architecture Diagram](documentation/Screenshot%202026-09-22%20161339.png)
 
 ## Workflow Diagram
 
-![Workflow Diagram](documentation/workflow-diagram.png)
+![Workflow Diagram](documentation/Screenshot%202026-09-22%20225019.png)
 
 ## Lead Scoring
 
