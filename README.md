@@ -26,6 +26,7 @@ This workflow automates that research process and produces structured, ranked le
 14. Logs workflow failures in a separate Google Sheet.
 
 ## Architecture
+![Workflow Overview](documentation/Screenshot%202026-09-22%20232733.png)
 
 ![Architecture Diagram](documentation/Screenshot%202026-09-22%20161339.png)
 
